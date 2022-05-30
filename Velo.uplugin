@@ -1,0 +1,36 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Velo.",
+	"Description": "Velo. is a framework that would help you start your new Unreal Engine game project.",
+	"Category": "Framework",
+	"CreatedBy": "whiteex",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Velo",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "conSole",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "WiMan",
+			"Enabled": true,
+			"Optional": true
+		}
+	]
+}
