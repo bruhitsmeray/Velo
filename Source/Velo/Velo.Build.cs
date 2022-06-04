@@ -25,6 +25,7 @@ public class Velo : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"CableComponent",
 				"Core",
 				"conSole",
 				"UMG"

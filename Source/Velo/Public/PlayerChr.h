@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CSL_Window.h"
+#include "CableComponent.h"
 #include "GameFramework/Character.h"
 #include "PlayerChr.generated.h"
 
@@ -19,6 +20,23 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual bool CanJumpInternal_Implementation() const override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName MoveForwardBindName = "move_forward";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName MoveSideBindName = "move_side";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName VerticalLookBindName = "look_vertical";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName HorizontalLookBindName = "look_horizontal";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName JumpBindName = "Jump";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName CrouchBindName = "Crouch";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName GrappleBindName = "Grapple";
+	
 
 public:	
 	// Called every frame
@@ -71,7 +89,58 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void HorizontalLook(float Axis);
 
+	UFUNCTION(BlueprintCallable)
+		void BeginJump();
+	UFUNCTION(BlueprintCallable)
+		void EndJump();
+	UFUNCTION(BlueprintCallable)
+		void BeginCrouch();
+	UFUNCTION(BlueprintCallable)
+		void EndCrouch();
+	
 	bool bDevWalk = false;
-	UFUNCTION(BlueprintCallable, Exec)
-		void Noclip(int Mode); // 0 = disable, 1 = enable
+	UFUNCTION(BlueprintCallable, Exec, Category = "Cheats")
+		void noclip(int Mode); // 0 = disable, 1 = enable
+	UFUNCTION(BlueprintCallable, Exec, Category = "Cheats")
+		void AllowCheats(int Mode); // 0 = disable, 1 = enable
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Preferences")
+		bool bCanUseCheats = false;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsGrabbing = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Preferences")
+		bool bCanGrab = true;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsCrouching = false;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsGrappling = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Preferences")
+		bool bCanUseHook = true;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsPulling = false;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsOnWall = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Preferences")
+		bool bCanUseWallrun = true;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Status")
+		bool bIsFlashOn = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Preferences")
+		bool bCanUseFlash = true;
+	
+protected:
+	UCableComponent* Cable;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character: Movement - Grapple")
+		FVector GrappleLocation;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character: Movement - Grapple")
+		float GrappleDistance = 3072.0f;
+	
+	UFUNCTION(BlueprintCallable, Category = "Trace")
+		bool Trace(float Distance);
+	UFUNCTION(BlueprintCallable, Category = "GrapplingHook")
+		void Grapple();
+	UFUNCTION(BlueprintCallable, Category = "GrapplingHook")
+		void GrappleTick();
+	UFUNCTION(BlueprintCallable, Category = "GrapplingHook")
+		void GrappleStop();
 };
