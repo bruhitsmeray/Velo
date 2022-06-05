@@ -29,7 +29,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
 		FName VerticalLookBindName = "look_vertical";
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName VerticalLookOnControllerBindName = "LookRate";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
 		FName HorizontalLookBindName = "look_horizontal";
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
+		FName HorizontalLookOnControllerBindName = "TurnRate";
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
 		FName JumpBindName = "Jump";
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bindings")
@@ -51,7 +55,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Sensitivity")
 		float SensitivityZ = 25.0f;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Sensitivity")
-		float SensitivityX = 45.0f;
+		float SensitivityY = 45.0f;
 
 	UFUNCTION(BlueprintPure)
 		float GetMouseSens() const
@@ -66,10 +70,10 @@ public:
 			return SensitivityZ;
 		}
 	UFUNCTION(BlueprintPure)
-		float GetSensX() const
+		float GetSensY() const
 		{
-			UCSL_Window::PrintToConsole("Character", "Warning", FString::Printf(TEXT("X Sensitivity: %f"), SensitivityX));
-			return SensitivityX;
+			UCSL_Window::PrintToConsole("Character", "Warning", FString::Printf(TEXT("X Sensitivity: %f"), SensitivityY));
+			return SensitivityY;
 		}
 
 public:
@@ -87,7 +91,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void VerticalLook(float Axis);
 	UFUNCTION(BlueprintCallable)
+		void VerticalLookOnController(float Axis);
+	UFUNCTION(BlueprintCallable)
 		void HorizontalLook(float Axis);
+	UFUNCTION(BlueprintCallable)
+		void HorizontalLookOnController(float Axis);
 
 	UFUNCTION(BlueprintCallable)
 		void BeginJump();
@@ -129,7 +137,7 @@ protected:
 		bool bCanUseFlash = true;
 	
 protected:
-	UCableComponent* Cable;
+//	UCableComponent* Cable;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character: Movement - Grapple")
 		FVector GrappleLocation;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character: Movement - Grapple")
@@ -143,4 +151,6 @@ protected:
 		void GrappleTick();
 	UFUNCTION(BlueprintCallable, Category = "GrapplingHook")
 		void GrappleStop();
+	UFUNCTION(BlueprintCallable, Category = "GrapplingHook")
+	    void SetGrappleVisibility(bool Visibility);
 };

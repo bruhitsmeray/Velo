@@ -47,12 +47,10 @@ APlayerChr::APlayerChr()
 	OuterLight->InnerConeAngle = 32.0f;
 	OuterLight->OuterConeAngle = 48.0f;
 	OuterLight->SetVisibility(false);
-
-	Cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
-	Cable->SetupAttachment(Camera);
-	Cable->SetCastShadow(false);
-	Cable->SetVisibility(false);
-	Cable->NumSegments = 1;
+	
+//	NOTE: In previous versions of this plugin, the cable was spawned alongside the other components, from now on
+//	the user has to create the cable component manually in Blueprints as it is easier to customize.	It's functionality
+//	however stays inside the code so that the user doesn't need to worry about that stuff.	
 }
 
 // Called when the game starts or when spawned
@@ -81,9 +79,10 @@ void APlayerChr::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis(MoveForwardBindName, this, &APlayerChr::MoveForward);
 	PlayerInputComponent->BindAxis(MoveSideBindName, this, &APlayerChr::MoveSide);
 	PlayerInputComponent->BindAxis(VerticalLookBindName, this, &APlayerChr::VerticalLook);
+	PlayerInputComponent->BindAxis(VerticalLookOnControllerBindName, this, &APlayerChr::VerticalLookOnController);
 	PlayerInputComponent->BindAxis(HorizontalLookBindName, this, &APlayerChr::HorizontalLook);
-	PlayerInputComponent->BindAction(JumpBindName, IE_Pressed, this, &APlayerChr::BeginJump);
-	PlayerInputComponent->BindAction(JumpBindName, IE_Released, this, &APlayerChr::EndJump);
+	PlayerInputComponent->BindAxis(HorizontalLookOnControllerBindName, this, &APlayerChr::HorizontalLookOnController);
+
 	PlayerInputComponent->BindAction(CrouchBindName, IE_Pressed, this, &APlayerChr::BeginCrouch);
 	PlayerInputComponent->BindAction(CrouchBindName, IE_Released, this, &APlayerChr::EndCrouch);
 	PlayerInputComponent->BindAction(GrappleBindName, IE_Pressed, this, &APlayerChr::Grapple);
@@ -111,9 +110,19 @@ void APlayerChr::VerticalLook(float Axis)
 	AddControllerPitchInput(Axis * MouseSensitivity);
 }
 
+void APlayerChr::VerticalLookOnController(float Axis)
+{
+	AddControllerPitchInput(Axis * SensitivityY * GetWorld()->GetDeltaSeconds());
+}
+
 void APlayerChr::HorizontalLook(float Axis)
 {
 	AddControllerYawInput(Axis * MouseSensitivity);
+}
+
+void APlayerChr::HorizontalLookOnController(float Axis)
+{
+	AddControllerYawInput(Axis * SensitivityZ * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerChr::BeginJump()
@@ -199,10 +208,7 @@ void APlayerChr::Grapple()
 		{
 			bIsGrappling = true;
 			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-			if(Cable->IsValidLowLevel())
-			{
-				Cable->SetVisibility(true);
-			}
+			SetGrappleVisibility(true);
 		}
 	}
 }
@@ -212,6 +218,7 @@ void APlayerChr::GrappleTick()
 	if(bCanUseHook && bIsGrappling)
 	{
 		GetCharacterMovement()->AddForce(UKismetMathLibrary::Normal(UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), GrappleLocation) + ((GetInputAxisValue(MoveSideBindName) * GetActorRightVector()) * 0.5f)) * 300000.0f);
+		UCableComponent* Cable = FindComponentByClass<UCableComponent>();
 		Cable->EndLocation = UKismetMathLibrary::InverseTransformLocation(GetActorTransform(), GrappleLocation);
 		if((UKismetMathLibrary::Vector_Distance(GrappleLocation, GetActorLocation()) <= 256.0f) || (UKismetMathLibrary::Vector_Distance(GrappleLocation, GetActorLocation()) >= 3072.0f))
 		{
@@ -225,9 +232,18 @@ void APlayerChr::GrappleStop()
 	bIsGrappling = false;
 	GrappleLocation = FVector(0, 0, 0);
 	GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	SetGrappleVisibility(false);
+}
+
+void APlayerChr::SetGrappleVisibility(bool Visibility)
+{
+	UCableComponent* Cable = FindComponentByClass<UCableComponent>();
 	if(Cable->IsValidLowLevel())
 	{
-		Cable->SetVisibility(false);
+		Cable->SetVisibility(Visibility);
+	} else
+	{
+		UCSL_Window::PrintToConsole("Character", "Warning", "No cable component found! Please add a cable component to the Player Character blueprint in order to use the Grapple functions");
 	}
 }
 
