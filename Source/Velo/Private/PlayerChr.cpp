@@ -50,6 +50,7 @@ APlayerChr::APlayerChr()
 
 	Cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	Cable->SetupAttachment(Camera);
+	Cable->SetCastShadow(false);
 	Cable->SetVisibility(false);
 	Cable->NumSegments = 1;
 }
